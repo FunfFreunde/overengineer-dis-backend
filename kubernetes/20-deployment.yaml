@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: overengineer-backend
-        image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+        image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
         imagePullPolicy: "Always"
         args:
         - server

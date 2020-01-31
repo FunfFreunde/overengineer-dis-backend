@@ -1,6 +1,11 @@
 stages:
   - build
   - release
+  - deploy
+
+include:
+  - project: 'ciapa/ci-includes'
+    file: 'k8s/deploy.yml'
 
 build:
   stage: build
@@ -21,3 +26,17 @@ release:
   only:
     - master
 
+k8s-deploy-prod:
+  extends: .k8s-deploy
+  stage: deploy
+  tags: []
+  before_script:
+    - 'mkdir -p .deploy'
+    - 'for f in kubernetes/*.yaml; do cp -- "$f" ".deploy/00$(basename $f)"; done'
+  cache: {}
+  dependencies: []
+  environment:
+    name: production
+  only:
+    - master
+    
