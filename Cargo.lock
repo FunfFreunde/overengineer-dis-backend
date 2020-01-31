@@ -954,6 +954,7 @@ dependencies = [
  "actix-rt",
  "actix-web",
  "dotenv",
+ "rand",
  "serde",
  "uuid",
 ]

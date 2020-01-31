@@ -10,3 +10,4 @@ actix-rt = "1.0.0"
 dotenv = "0.15.0"
 serde = "1.0.104"
 uuid = { version = "0.8", features = ["serde", "v4"] }
+rand = "0.7.3"
