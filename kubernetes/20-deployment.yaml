@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: overengineer-backend
+spec:
+  selector:
+    matchLabels:
+      app: overengineer-backend
+      app.gitlab.com/app: '$CI_PROJECT_PATH_SLUG'
+      app.gitlab.com/env: '$CI_ENVIRONMENT_SLUG'
+      tier: backend
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: overengineer-backend
+        app.gitlab.com/app: '$CI_PROJECT_PATH_SLUG'
+        app.gitlab.com/env: '$CI_ENVIRONMENT_SLUG'
+        tier: backend
+    spec:
+      containers:
+      - name: overengineer-backend
+        image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+        imagePullPolicy: "Always"
+        args:
+        - server
+        envFrom:
+          - configMapRef:
+              name: overengineer-backend.configmap
