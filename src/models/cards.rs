@@ -3,7 +3,16 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "card_type")]
 pub enum Card {
-    Part(PartType)
+    Part(PartType),
+    Joker(JokerType)
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "joker_type")]
+pub enum JokerType {
+    Intern,
+    ShoddyWork { min: u8, max: u8 },
+    Cancellation
 }
 
 #[derive(Serialize, Deserialize, Debug)]
