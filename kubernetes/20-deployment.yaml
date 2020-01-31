@@ -18,6 +18,8 @@ spec:
         app.gitlab.com/env: '$CI_ENVIRONMENT_SLUG'
         tier: backend
     spec:
+      imagePullSecrets:
+      - name: gitlab-registry
       containers:
       - name: overengineer-backend
         image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
