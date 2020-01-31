@@ -2,14 +2,14 @@ use actix_web::{web, App, HttpServer, Responder};
 use dotenv::dotenv;
 use std::env;
 use actix_web::web::Json;
-use crate::models::cards::{Card, PartType, MotorType, JokerType};
+use crate::models::cards::{Card, PartType, MotorType, JokerType, TireType, CardStack};
 use crate::models::cards::PartType::Motor;
 use crate::models::cards::Card::Joker;
 
 mod models;
 
 async fn index() -> impl Responder {
-    web::Json(Card::Joker(JokerType::ShoddyWork {min: 2, max: 10}))
+    web::Json(CardStack::new())
 }
 
 #[actix_rt::main]
