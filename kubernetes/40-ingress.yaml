@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: overengineer-backend
+  labels:
+spec:
+  rules:
+    - host: "overengineer-backend.fsn.k8s.ciapa.tech"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: overengineer-backend
+              servicePort: 8080
