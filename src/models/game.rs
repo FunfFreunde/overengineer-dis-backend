@@ -28,6 +28,14 @@ impl Player {
     pub fn score_stack_mut(&mut self) -> &mut ScoreStack {
         &mut self.score_stack
     }
+
+    pub fn id(&self) -> Uuid {
+        self.id
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
 }
 
 #[derive(Debug)]
@@ -64,29 +72,5 @@ impl Match {
             Match::Full => 3,
             Match::Half => 1
         }
-    }
-}
-
-pub struct Desk {
-    card_stack: CardStack,
-    players: HashMap<Uuid, Player>,
-    current_player: Uuid
-}
-
-impl Desk {
-    pub fn new() -> Self {
-        Self {
-            card_stack: CardStack::new(),
-            players: HashMap::new(),
-            current_player: Uuid::nil()
-        }
-    }
-
-    pub fn add_player(&mut self, player: Player) {
-        self.players.insert(player.id, player);
-    }
-
-    pub fn next_player(&mut self) {
-        unimplemented!()
     }
 }
