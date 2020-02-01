@@ -76,7 +76,7 @@ impl Contract {
                                 _ => continue 'existing_loop,
                             },
                             PartType::Paint(paint_type) => match new_part_type {
-                                PartType::Motor(new_motor_type) => {
+                                PartType::Paint(new_paint_type) => {
                                     continue 'part_loop;
                                 }
                                 _ => continue 'existing_loop,
