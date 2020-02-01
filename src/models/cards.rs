@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use crate::models::cards::Card::Part;
 use serde::export::fmt::Display;
+use rand::seq::SliceRandom;
 
 const INSTANCES_PER_CARD: usize = 4;
 
@@ -19,6 +20,7 @@ pub struct CardStack {
 impl CardStack {
     pub fn new() -> Self {
         let mut cards = Vec::new();
+        let mut rand = rand::thread_rng();
 
         for _ in 0..INSTANCES_PER_CARD {
             cards.push(Card::Part(PartType::Tires(TireType::Summer)));
@@ -46,8 +48,23 @@ impl CardStack {
             cards.push(Card::Joker(JokerType::Cancellation));
             cards.push(Card::Joker(JokerType::ShoddyWork { min: 0, max: 10}))
         }
+        cards.shuffle(&mut rand);
 
         Self { cards }
+    }
+
+    pub fn deal(&mut self, amount: usize) -> Option<Vec<Card>> {
+        let mut hand = Vec::new();
+
+        for _ in 0..amount {
+            if let Some(card) = self.cards.pop() {
+                hand.push(card)
+            } else {
+                return None;
+            }
+        }
+
+        Some(hand)
     }
 }
 
