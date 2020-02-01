@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use crate::models::cards::Card::Part;
-use serde::export::fmt::Display;
 use rand::seq::SliceRandom;
+use serde::export::fmt::Display;
+use serde::{Deserialize, Serialize};
 
 const INSTANCES_PER_CARD: usize = 4;
 
@@ -9,7 +9,7 @@ const INSTANCES_PER_CARD: usize = 4;
 #[serde(tag = "card_type")]
 pub enum Card {
     Part(PartType),
-    Joker(JokerType)
+    Joker(JokerType),
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
@@ -46,7 +46,7 @@ impl CardStack {
 
             cards.push(Card::Joker(JokerType::Intern));
             cards.push(Card::Joker(JokerType::Cancellation));
-            cards.push(Card::Joker(JokerType::ShoddyWork { min: 0, max: 10}))
+            cards.push(Card::Joker(JokerType::ShoddyWork { min: 0, max: 10 }))
         }
         cards.shuffle(&mut rand);
 
@@ -81,7 +81,7 @@ impl CardStack {
 pub enum JokerType {
     Intern,
     ShoddyWork { min: u8, max: u8 },
-    Cancellation
+    Cancellation,
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
