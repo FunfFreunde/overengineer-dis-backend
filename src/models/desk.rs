@@ -1,7 +1,7 @@
 use crate::models::cards::CardStack;
 use std::collections::HashMap;
 use uuid::Uuid;
-use crate::models::game::Player;
+use crate::models::player::Player;
 
 pub struct Desk {
     card_stack: CardStack,
