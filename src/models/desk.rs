@@ -1,28 +1,40 @@
 use crate::models::cards::CardStack;
 use std::collections::HashMap;
 use uuid::Uuid;
-use crate::models::game::Player;
+use crate::models::player::Player;
 
 pub struct Desk {
     card_stack: CardStack,
-    players: HashMap<Uuid, Player>,
-    current_player: Uuid
+    players: Vec<Player>,
+    current_player: usize
 }
 
 impl Desk {
     pub fn new() -> Self {
         Self {
             card_stack: CardStack::new(),
-            players: HashMap::new(),
-            current_player: Uuid::nil()
+            players: Vec::new(),
+            current_player: 0
         }
     }
 
     pub fn add_player(&mut self, player: Player) {
-        self.players.insert(player.id(), player);
+        self.players.push(player)
+    }
+
+    pub fn current_player(&self) -> Option<&Player> {
+        self.players.get(self.current_player)
+    }
+
+    pub fn current_player_mut(&mut self) -> Option<&Player> {
+        self.players.get(self.current_player)
     }
 
     pub fn next_player(&mut self) {
-        unimplemented!()
+        if self.current_player < self.players.len() - 1 {
+            self.current_player += 1;
+        } else {
+            self.current_player = 0;
+        }
     }
 }
