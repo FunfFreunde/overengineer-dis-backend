@@ -14,10 +14,14 @@ async fn index() -> impl Responder {
 
 #[actix_rt::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let _guard = sentry::init("https://7bb10419f3bf43f2a79ede13560b7cdf@sentry.fsn.k8s.ciapa.tech/4");
+    env::set_var("RUST_BACKTRACE", "1");
+    sentry::integrations::panic::register_panic_handler();
+
     dotenv().ok();
 
     HttpServer::new(|| App::new()
-        .route("/", web::get().to(index))
+        .route("/backend/index", web::get().to(index))
     )
         .bind(env::var("LISTEN_ADDRESS")?)?
         .run()

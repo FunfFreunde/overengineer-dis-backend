@@ -16,6 +16,8 @@ spec:
         app: overengineer-backend
         app.gitlab.com/app: '$CI_PROJECT_PATH_SLUG'
         app.gitlab.com/env: '$CI_ENVIRONMENT_SLUG'
+        commit_sha: '$CI_COMMIT_SHA'
+        ci_job_id: '$CI_JOB_ID'    
         tier: backend
     spec:
       imagePullSecrets:
