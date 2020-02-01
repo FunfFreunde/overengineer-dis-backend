@@ -5,14 +5,50 @@ use crate::game::contract::Contract;
 use actix_web::web::Json;
 use actix_web::{web, App, HttpServer, Responder};
 use dotenv::dotenv;
+use serde::{Deserialize, Serialize};
 use std::env;
+use uuid::Uuid;
 
 mod game;
+
+#[derive(Deserialize)]
+struct JoinInfo {
+    username: String,
+    uuid: Uuid
+}
+
+#[derive(Deserialize)]
+struct LeaveInfo {
+    uuid: Uuid
+}
+
+#[derive(Deserialize)]
+struct NewInfo {
+    username: String
+}
 
 async fn index() -> impl Responder {
     let contract = Contract::generate();
 
     web::Json(contract)
+}
+
+async fn get_games() -> impl Responder {
+    let contract = Contract::generate();
+
+    web::Json(contract)
+}
+
+async fn get_games_join(info: web::Path<JoinInfo>) -> String {
+    format!("User {} joined room {}", info.username, info.uuid)
+}
+
+async fn get_games_new(info: web::Path<NewInfo>) -> String {
+    format!("User {} created new room", info.username)
+}
+
+async fn get_games_leave(info: web::Path<LeaveInfo>) -> String {
+    format!("Someone left room {}", info.uuid)
 }
 
 #[actix_rt::main]
@@ -24,7 +60,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     dotenv().ok();
 
-    HttpServer::new(|| App::new().route("/backend/index", web::get().to(index)))
+    HttpServer::new(|| App::new()
+            .service(web::resource("/backend/index").route(web::get().to(index)))
+            .service(web::resource("/backend/games").route(web::get().to(get_games)))
+            .service(web::resource("/backend/games/{uuid}/join/{username}").route(web::get().to(get_games_join)))
+            .service(web::resource("/backend/games/new/{username}").route(web::get().to(get_games_new)))
+            .service(web::resource("/backend/games/{uuid}/leave").route(web::get().to(get_games_leave)))
+        )
         .bind(env::var("LISTEN_ADDRESS")?)?
         .run()
         .await?;
