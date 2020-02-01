@@ -1,7 +1,7 @@
 use crate::models::cards::Card::Joker;
 use crate::models::cards::PartType::Motor;
 use crate::models::cards::{Card, CardStack, JokerType, MotorType, PartType, TireType};
-use crate::models::desk::Contract;
+use crate::models::contract::Contract;
 use actix_web::web::Json;
 use actix_web::{web, App, HttpServer, Responder};
 use dotenv::dotenv;
