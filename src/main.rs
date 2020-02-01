@@ -21,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv().ok();
 
     HttpServer::new(|| App::new()
-        .route("/", web::get().to(index))
+        .route("/backend/", web::get().to(index))
     )
         .bind(env::var("LISTEN_ADDRESS")?)?
         .run()
