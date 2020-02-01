@@ -2,8 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: overengineer-backend
-  commit_sha: '$CI_COMMIT_SHA'
-  ci_job_id: '$CI_JOB_ID'  
 spec:
   selector:
     matchLabels:
