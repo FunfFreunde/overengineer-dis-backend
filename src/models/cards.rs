@@ -66,6 +66,14 @@ impl CardStack {
 
         Some(hand)
     }
+
+    pub fn inner(&self) -> &Vec<Card> {
+        &self.cards
+    }
+
+    pub fn inner_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.cards
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
