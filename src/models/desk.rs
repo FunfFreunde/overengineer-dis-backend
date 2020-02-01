@@ -68,7 +68,7 @@ impl Contract {
             })
             .collect::<Vec<Card>>();
 
-        for _ in 0..range {
+        while contract_parts.len() < range {
             'part_loop: for part in &part_list {
                 let new_part_type: PartType;
 
@@ -122,7 +122,9 @@ impl Contract {
                         }
                     }
                 }
-                contract_parts.push(*part)
+                if contract_parts.len() < range {
+                    contract_parts.push(*part)
+                }
             }
         }
         return Contract::new(contract_parts);
