@@ -5,23 +5,14 @@ use actix_web::web::Json;
 use crate::models::cards::{Card, PartType, MotorType, JokerType, TireType, CardStack};
 use crate::models::cards::PartType::Motor;
 use crate::models::cards::Card::Joker;
+use crate::models::desk::Contract;
 
 mod models;
 
 async fn index() -> impl Responder {
-    let cards = CardStack::new()
-        .inner()
-        .iter()
-        .copied()
-        .filter(|card| {
-            match *card {
-                Joker(_) => false,
-                _ => true
-            }
-        })
-        .collect::<Vec<Card>>();
+    let contract = Contract::generate();
 
-    web::Json(cards)
+    web::Json(contract)
 }
 
 #[actix_rt::main]
