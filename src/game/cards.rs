@@ -1,4 +1,4 @@
-use crate::models::cards::Card::Part;
+use crate::game::cards::Card::Part;
 use rand::seq::SliceRandom;
 use serde::export::fmt::Display;
 use serde::{Deserialize, Serialize};

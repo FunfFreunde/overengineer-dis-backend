@@ -1,5 +1,5 @@
-use crate::models::cards::Card::Joker;
-use crate::models::cards::{
+use crate::game::cards::Card::Joker;
+use crate::game::cards::{
     Card, CardStack, Color, DoorType, JokerType, MotorType, PartType, TireType, WindowType,
 };
 use rand::{seq::SliceRandom, Rng};
