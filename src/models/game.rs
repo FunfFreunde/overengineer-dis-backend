@@ -28,6 +28,10 @@ impl ScoreStack {
         Self { matches: Vec::new() }
     }
 
+    pub fn push(&mut self, item: Match) {
+        self.matches.push(item);
+    }
+
     pub fn count(&self) -> u32 {
         self.matches
             .iter()
