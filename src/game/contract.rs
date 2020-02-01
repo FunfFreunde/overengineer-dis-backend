@@ -94,4 +94,8 @@ impl Contract {
         }
         return Contract::new(contract_parts);
     }
+
+    pub fn contract_parts_mut(&mut self) -> &mut Vec<Card> {
+        &mut self.contract_parts
+    }
 }

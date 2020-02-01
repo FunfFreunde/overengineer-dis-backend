@@ -25,6 +25,10 @@ impl Player {
         }
     }
 
+    pub fn id(&self) -> Uuid {
+        return self.id;
+    }
+
     pub fn hand_mut(&mut self) -> &mut Vec<Card> {
         &mut self.hand
     }
