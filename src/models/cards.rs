@@ -5,14 +5,14 @@ use rand::seq::SliceRandom;
 
 const INSTANCES_PER_CARD: usize = 4;
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "card_type")]
 pub enum Card {
     Part(PartType),
     Joker(JokerType)
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone)]
 pub struct CardStack {
     cards: Vec<Card>,
 }
@@ -76,7 +76,7 @@ impl CardStack {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "joker_type")]
 pub enum JokerType {
     Intern,
@@ -84,7 +84,7 @@ pub enum JokerType {
     Cancellation
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "part_type")]
 pub enum PartType {
     Motor(MotorType),
@@ -94,7 +94,7 @@ pub enum PartType {
     Paint(Color),
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "specialization")]
 pub enum MotorType {
     Electric,
@@ -102,7 +102,7 @@ pub enum MotorType {
     Gasoline,
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "specialization")]
 pub enum DoorType {
     Front,
@@ -110,7 +110,7 @@ pub enum DoorType {
     Slide,
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "specialization")]
 pub enum WindowType {
     Front,
@@ -118,7 +118,7 @@ pub enum WindowType {
     Side,
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "specialization")]
 pub enum TireType {
     Winter,
@@ -126,7 +126,7 @@ pub enum TireType {
     Generic,
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
 #[serde(tag = "specialization")]
 pub enum Color {
     Red,

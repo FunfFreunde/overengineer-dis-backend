@@ -9,7 +9,19 @@ use crate::models::cards::Card::Joker;
 mod models;
 
 async fn index() -> impl Responder {
-    web::Json(CardStack::new())
+    let cards = CardStack::new()
+        .inner()
+        .iter()
+        .copied()
+        .filter(|card| {
+            match *card {
+                Joker(_) => false,
+                _ => true
+            }
+        })
+        .collect::<Vec<Card>>();
+
+    web::Json(cards)
 }
 
 #[actix_rt::main]
