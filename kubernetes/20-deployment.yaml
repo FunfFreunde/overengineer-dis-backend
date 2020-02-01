@@ -24,8 +24,6 @@ spec:
       - name: overengineer-backend
         image: $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
         imagePullPolicy: "Always"
-        args:
-        - server
         envFrom:
           - configMapRef:
               name: overengineer-backend.configmap
