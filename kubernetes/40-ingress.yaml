@@ -3,12 +3,14 @@ kind: Ingress
 metadata:
   name: overengineer-backend
   labels:
+  annotations:
+    nginx.org/websocket-services: "overengineer-backend"
 spec:
   rules:
-    - host: "overengineer.fsn.k8s.ciapa.tech"
-      http:
-        paths:
-          - path: /backend
-            backend:
-              serviceName: overengineer-backend
-              servicePort: 8080
+  - host: overengineer.wtf
+    http:
+      paths:
+      - path: /backend
+        backend:
+          serviceName: overengineer-backend
+          servicePort: 8080
