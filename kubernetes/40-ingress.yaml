@@ -4,11 +4,6 @@ metadata:
   name: overengineer-backend
   labels:
 spec:
-  rules:
-    - host: "overengineer.fsn.k8s.ciapa.tech"
-      http:
-        paths:
-          - path: /backend
-            backend:
-              serviceName: overengineer-backend
-              servicePort: 8080
+  backend:
+    serviceName: overengineer-backend
+    servicePort: 8080
