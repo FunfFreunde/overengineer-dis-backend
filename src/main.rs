@@ -1,5 +1,6 @@
 use actix_web::{web, App, HttpServer, Responder, HttpResponse, HttpRequest, Error, middleware};
 use dotenv::dotenv;
+use serde::{Deserialize, Serialize};
 use std::env;
 use uuid::Uuid;
 use crate::net::session::{GameServer, GameSocket};
@@ -15,7 +16,10 @@ mod net;
 
 /// do websocket handshake and start `MyWebSocket` actor
 async fn ws_index(data: web::Data<Addr<GameServer>>, r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
-    let res = ws::start(GameSocket::new(data.into_inner()), &r, stream);
+    let uuid = Uuid::new_v4();
+    let game_socket = GameSocket::new(uuid, data.into_inner());
+
+    let res = ws::start(game_socket, &r, stream);
     res
 }
 

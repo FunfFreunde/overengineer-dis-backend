@@ -21,7 +21,7 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 pub struct GameServer {
     id: Uuid,
     desk: Desk,
-    clients: Cell<HashMap<Uuid, Addr<GameSocket>>>
+    clients: HashMap<Uuid, Addr<GameSocket>>
 }
 
 impl GameServer {
@@ -29,7 +29,7 @@ impl GameServer {
         Self {
             id: Uuid::new_v4(),
             desk: Desk::new(),
-            clients: Cell::new(HashMap::new())
+            clients: HashMap::new()
         }
     }
 
@@ -70,6 +70,7 @@ impl Handler<ClientMessage> for GameServer {
 }
 
 pub struct GameSocket {
+    uuid: Uuid,
     hb: Instant,
     server: Arc<Addr<GameServer>>
 }
@@ -78,13 +79,14 @@ impl Actor for GameSocket {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
+        ctx.text(self.uuid.to_string());
         self.hb(ctx);
     }
 }
 
 impl GameSocket {
-    pub fn new(server_addr: Arc<Addr<GameServer>>) -> Self {
-        Self { hb: Instant::now(), server: server_addr}
+    pub fn new(uuid: Uuid, server_addr: Arc<Addr<GameServer>>) -> Self {
+        Self { uuid, hb: Instant::now(), server: server_addr}
     }
 
     fn hb(&self, ctx: &mut <Self as Actor>::Context) {
