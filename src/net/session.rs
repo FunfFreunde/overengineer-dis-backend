@@ -12,10 +12,9 @@ use crate::game::player::Player;
 use actix::dev::MessageResponse;
 use std::sync::Arc;
 use std::cell::Cell;
-use std::task::Poll;
+use std::task::{Poll, Waker, RawWakerVTable};
 use std::future::Future;
 use std::pin::Pin;
-use tokio::runtime::Runtime;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -128,21 +127,14 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for GameSocket {
 
                                 let res = self.server.send(msg);
 
-//                                unsafe {
-//                                    let fut = Pin::new_unchecked(async {
-//                                        match res.await {
-//                                            Ok(answer) => { ctx.text(answer); },
-//                                            Err(e) => { eprintln!("error sending message: {}", e); }
-//                                        }
-//                                    });
-//
-//                                    loop {
-//                                        match fut.poll() {
-//                                            Poll::Ready(_) => break,
-//                                            Poll::Pending => {}
-//                                        }
-//                                    }
-//                                }
+                                let future = async {
+                                    match res.await {
+                                        Ok(answer) => { ctx.text(answer); },
+                                        Err(e) => { eprintln!("error sending message: {}", e); }
+                                    }
+                                };
+
+                                futures::executor::block_on(future);
                             },
                             Err(e) => { eprintln!("received invalid invalid json from the client: {}", e) }
                         }

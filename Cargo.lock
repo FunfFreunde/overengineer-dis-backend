@@ -1420,11 +1420,11 @@ dependencies = [
  "actix-web",
  "actix-web-actors",
  "dotenv",
+ "futures 0.3.1",
  "rand 0.7.3",
  "sentry",
  "serde",
  "serde_json",
- "tokio 0.2.11",
  "uuid 0.8.1",
 ]
 
