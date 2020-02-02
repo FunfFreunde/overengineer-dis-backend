@@ -18,5 +18,5 @@ pub struct ClientMessage {
 }
 
 impl Message for ClientMessage {
-    type Result = ();
+    type Result = String;
 }

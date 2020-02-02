@@ -1424,6 +1424,7 @@ dependencies = [
  "sentry",
  "serde",
  "serde_json",
+ "tokio 0.2.11",
  "uuid 0.8.1",
 ]
 

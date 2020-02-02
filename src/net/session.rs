@@ -12,6 +12,10 @@ use crate::game::player::Player;
 use actix::dev::MessageResponse;
 use std::sync::Arc;
 use std::cell::Cell;
+use std::task::Poll;
+use std::future::Future;
+use std::pin::Pin;
+use tokio::runtime::Runtime;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -51,19 +55,17 @@ impl Actor for GameServer {
 }
 
 impl Handler<ClientMessage> for GameServer {
-    type Result = ();
+    type Result = String;
 
     fn handle(&mut self, msg: ClientMessage, ctx: &mut Self::Context) -> Self::Result {
-        let player = msg.player;
+        //let player = msg.player;
 
-        if let Some(socket) = self.clients.get(&player) {
-            match msg.message_type {
-                MessageType::PlayCard { card } => {
-                    socket.do_send(ServerMessage::Accept);
-                },
-                MessageType::DrawCard => {
-                    socket.do_send(ServerMessage::Accept);
-                }
+        match msg.message_type {
+            MessageType::PlayCard { card } => {
+                serde_json::to_string_pretty(&ServerMessage::Accept).unwrap()
+            },
+            MessageType::DrawCard => {
+                serde_json::to_string_pretty(&ServerMessage::Accept).unwrap()
             }
         }
     }
@@ -123,9 +125,24 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for GameSocket {
                         match message {
                             Ok(msg) => {
                                 println!("received valid message");
-                                if let Err(e) = self.server.try_send(msg) {
-                                    println!("send error: {}", e);
-                                }
+
+                                let res = self.server.send(msg);
+
+//                                unsafe {
+//                                    let fut = Pin::new_unchecked(async {
+//                                        match res.await {
+//                                            Ok(answer) => { ctx.text(answer); },
+//                                            Err(e) => { eprintln!("error sending message: {}", e); }
+//                                        }
+//                                    });
+//
+//                                    loop {
+//                                        match fut.poll() {
+//                                            Poll::Ready(_) => break,
+//                                            Poll::Pending => {}
+//                                        }
+//                                    }
+//                                }
                             },
                             Err(e) => { eprintln!("received invalid invalid json from the client: {}", e) }
                         }
