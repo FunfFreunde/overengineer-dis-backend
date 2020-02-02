@@ -10,6 +10,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Contract {
+    #[serde(rename = "parts")]
     contract_parts: Vec<Card>,
 }
 

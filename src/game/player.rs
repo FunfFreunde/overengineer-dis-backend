@@ -16,13 +16,17 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new<T: Into<String>>(name: T) -> Self {
+    pub fn new<T: Into<String>>(id: Uuid, name: T) -> Self {
         Self {
-            id: Uuid::new_v4(),
+            id,
             name: name.into(),
             hand: Vec::new(),
             score_stack: ScoreStack::new(),
         }
+    }
+
+    pub fn id(&self) -> &Uuid {
+        &self.id
     }
 
     pub fn hand_mut(&mut self) -> &mut Vec<Card> {

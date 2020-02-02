@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 const INSTANCES_PER_CARD: usize = 4;
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Copy, Clone)]
-#[serde(tag = "card_type")]
+#[serde(tag = "type", content = "payload")]
 pub enum Card {
     Part(PartType),
     Joker(JokerType),
