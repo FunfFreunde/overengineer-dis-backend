@@ -42,8 +42,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     HttpServer::new(move || App::new()
         .data(data.clone())
         .wrap(middleware::Logger::default())
-        .route("/join", web::get().to(ws_index))
-        .route("/", web::get().to(index))
+        .route("/backend/join", web::get().to(ws_index))
+        .route("/backend/", web::get().to(index))
     )
         .bind(env::var("LISTEN_ADDRESS")?)?
         .run()
