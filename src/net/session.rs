@@ -24,7 +24,6 @@ const CLIENT_TIMEOUT: Duration = Duration::from_secs(10);
 pub struct GameServer {
     id: Uuid,
     desk: Desk,
-    clients: HashMap<Uuid, Addr<GameSocket>>
 }
 
 impl GameServer {
@@ -32,20 +31,11 @@ impl GameServer {
         Self {
             id: Uuid::new_v4(),
             desk: Desk::new(),
-            clients: HashMap::new()
         }
     }
 
     pub fn id(&self) -> &Uuid {
         &self.id
-    }
-
-    pub fn create_player(&mut self, name: &str) -> Uuid {
-        let uuid = Uuid::new_v4();
-        let player = Player::new(uuid.clone(), name);
-
-        self.desk.add_player(player);
-        uuid
     }
 }
 
@@ -57,14 +47,15 @@ impl Handler<ClientMessage> for GameServer {
     type Result = String;
 
     fn handle(&mut self, msg: ClientMessage, ctx: &mut Self::Context) -> Self::Result {
-        //let player = msg.player;
-
         match msg.message_type {
             MessageType::PlayCard { card } => {
                 serde_json::to_string_pretty(&ServerMessage::Accept).unwrap()
             },
             MessageType::DrawCard => {
                 serde_json::to_string_pretty(&ServerMessage::Accept).unwrap()
+            },
+            MessageType::Status => {
+                serde_json::to_string_pretty(&ServerMessage::PlayerChange { player: Uuid::new_v4() }).unwrap()
             }
         }
     }
@@ -140,21 +131,24 @@ impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for GameSocket {
                         }
                     },
                     ws::Message::Pong(_) => {
+                        println!("received pong from player {}", &self.uuid);
                         self.hb = Instant::now();
+
+                        let res = self.server.send(ClientMessage { player: self.uuid, message_type: MessageType::Status});
+
+                        let future = async {
+                            match res.await {
+                                Ok(answer) => { ctx.text(answer); },
+                                Err(e) => { eprintln!("error sending message: {}", e); }
+                            }
+                        };
+
+                        futures::executor::block_on(future);
                     },
                     _ => eprintln!("unsupported message type")
                 }
             },
             Err(e) => eprintln!("protocol error: {}", e)
         }
-    }
-}
-
-impl Handler<ServerMessage>for GameSocket {
-    type Result = ();
-
-    fn handle(&mut self, msg: ServerMessage, ctx: &mut Self::Context) -> Self::Result {
-        println!("hemlo");
-        ctx.text("hemlo");
     }
 }

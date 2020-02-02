@@ -9,6 +9,7 @@ use crate::net::message::server::ServerMessage;
 pub enum MessageType {
     PlayCard { card: Card },
     DrawCard,
+    Status
 }
 
 #[derive(Serialize, Deserialize, Debug)]
