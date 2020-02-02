@@ -1,21 +1,21 @@
-use uuid::Uuid;
-use serde::{Deserialize, Serialize};
 use crate::game::cards::Card;
+use crate::net::message::server::ServerMessage;
 use actix::prelude::*;
 use actix::Message;
-use crate::net::message::server::ServerMessage;
+use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum MessageType {
     PlayCard { card: Card },
     DrawCard,
-    Status
+    Status,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ClientMessage {
     pub player: Uuid,
-    pub message_type: MessageType
+    pub message_type: MessageType,
 }
 
 impl Message for ClientMessage {

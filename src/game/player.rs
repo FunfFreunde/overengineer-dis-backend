@@ -29,6 +29,10 @@ impl Player {
         &self.id
     }
 
+    pub fn hand(&self) -> &Vec<Card> {
+        &self.hand
+    }
+
     pub fn hand_mut(&mut self) -> &mut Vec<Card> {
         &mut self.hand
     }

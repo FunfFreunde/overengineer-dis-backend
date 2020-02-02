@@ -1,20 +1,24 @@
-use std::time::Instant;
-use actix::prelude::*;
-use actix_web_actors::ws;
-use actix_web::{web, HttpRequest, HttpResponse, Error};
-use std::time::Duration;
-use crate::net::message::client::{ClientMessage, MessageType};
 use crate::game::desk::Desk;
-use std::collections::HashMap;
-use uuid::Uuid;
-use crate::net::message::server::ServerMessage;
 use crate::game::player::Player;
+use crate::net::message::client::{ClientMessage, MessageType};
+use crate::net::message::server::ServerMessage;
 use actix::dev::MessageResponse;
-use std::sync::Arc;
+use actix::prelude::*;
+use actix_web::{web, Error, HttpRequest, HttpResponse};
+use actix_web_actors::ws;
 use std::cell::Cell;
-use std::task::{Poll, Waker, RawWakerVTable};
+use std::collections::HashMap;
 use std::future::Future;
+use serde::{Deserialize, Serialize};
 use std::pin::Pin;
+use std::sync::Arc;
+use std::task::{Poll, RawWakerVTable, Waker};
+use std::time::Duration;
+use std::time::Instant;
+use uuid::Uuid;
+use crate::game::cards::CardStack;
+use crate::game::contract::Contract;
+use actix_web::web::Json;
 
 /// How often heartbeat pings are sent
 const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
@@ -50,13 +54,12 @@ impl Handler<ClientMessage> for GameServer {
         match msg.message_type {
             MessageType::PlayCard { card } => {
                 serde_json::to_string_pretty(&ServerMessage::Accept).unwrap()
-            },
-            MessageType::DrawCard => {
-                serde_json::to_string_pretty(&ServerMessage::Accept).unwrap()
-            },
-            MessageType::Status => {
-                serde_json::to_string_pretty(&ServerMessage::PlayerChange { player: Uuid::new_v4() }).unwrap()
             }
+            MessageType::DrawCard => serde_json::to_string_pretty(&ServerMessage::Accept).unwrap(),
+            MessageType::Status => serde_json::to_string_pretty(&ServerMessage::PlayerChange {
+                player: Uuid::new_v4(),
+            })
+            .unwrap(),
         }
     }
 }
@@ -64,21 +67,35 @@ impl Handler<ClientMessage> for GameServer {
 pub struct GameSocket {
     uuid: Uuid,
     hb: Instant,
-    server: Arc<Addr<GameServer>>
+    server: Arc<Addr<GameServer>>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct IdMsg {
+    id: String
 }
 
 impl Actor for GameSocket {
     type Context = ws::WebsocketContext<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        ctx.text(self.uuid.to_string());
+        let mut stack = CardStack::new();
+        let id_msg = IdMsg { id: self.uuid.to_string() };
+
+        ctx.text(serde_json::to_string_pretty(&id_msg).unwrap());
+        ctx.text(serde_json::to_string_pretty(&stack.deal(8).unwrap()).unwrap());
+        ctx.text(serde_json::to_string_pretty(&Contract::generate()).unwrap());
         self.hb(ctx);
     }
 }
 
 impl GameSocket {
     pub fn new(uuid: Uuid, server_addr: Arc<Addr<GameServer>>) -> Self {
-        Self { uuid, hb: Instant::now(), server: server_addr}
+        Self {
+            uuid,
+            hb: Instant::now(),
+            server: server_addr,
+        }
     }
 
     fn hb(&self, ctx: &mut <Self as Actor>::Context) {
@@ -101,54 +118,59 @@ impl GameSocket {
 }
 
 impl StreamHandler<Result<ws::Message, ws::ProtocolError>> for GameSocket {
-    fn handle(
-        &mut self,
-        msg: Result<ws::Message, ws::ProtocolError>,
-        ctx: &mut Self::Context,
-    ) {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
-            Ok(message) => {
-                match message {
-                    ws::Message::Text(txt) => {
-                        let message = serde_json::from_str::<ClientMessage>(&txt);
+            Ok(message) => match message {
+                ws::Message::Text(txt) => {
+                    let message = serde_json::from_str::<ClientMessage>(&txt);
 
-                        match message {
-                            Ok(msg) => {
-                                println!("received valid message");
+                    match message {
+                        Ok(msg) => {
+                            println!("received valid message");
 
-                                let res = self.server.send(msg);
+                            let res = self.server.send(msg);
 
-                                let future = async {
-                                    match res.await {
-                                        Ok(answer) => { ctx.text(answer); },
-                                        Err(e) => { eprintln!("error sending message: {}", e); }
+                            let future = async {
+                                match res.await {
+                                    Ok(answer) => {
+                                        ctx.text(answer);
                                     }
-                                };
+                                    Err(e) => {
+                                        eprintln!("error sending message: {}", e);
+                                    }
+                                }
+                            };
 
-                                futures::executor::block_on(future);
-                            },
-                            Err(e) => { eprintln!("received invalid invalid json from the client: {}", e) }
+                            futures::executor::block_on(future);
                         }
-                    },
-                    ws::Message::Pong(_) => {
-                        println!("received pong from player {}", &self.uuid);
-                        self.hb = Instant::now();
-
-                        let res = self.server.send(ClientMessage { player: self.uuid, message_type: MessageType::Status});
-
-                        let future = async {
-                            match res.await {
-                                Ok(answer) => { ctx.text(answer); },
-                                Err(e) => { eprintln!("error sending message: {}", e); }
-                            }
-                        };
-
-                        futures::executor::block_on(future);
-                    },
-                    _ => eprintln!("unsupported message type")
+                        Err(e) => eprintln!("received invalid invalid json from the client: {}", e),
+                    }
                 }
+                ws::Message::Pong(_) => {
+                    println!("received pong from player {}", &self.uuid);
+                    self.hb = Instant::now();
+
+//                    let res = self.server.send(ClientMessage {
+//                        player: self.uuid,
+//                        message_type: MessageType::Status,
+//                    });
+//
+//                    let future = async {
+//                        match res.await {
+//                            Ok(answer) => {
+//                                ctx.text(answer);
+//                            }
+//                            Err(e) => {
+//                                eprintln!("error sending message: {}", e);
+//                            }
+//                        }
+//                    };
+
+                    //futures::executor::block_on(future);
+                }
+                _ => eprintln!("unsupported message type"),
             },
-            Err(e) => eprintln!("protocol error: {}", e)
+            Err(e) => eprintln!("protocol error: {}", e),
         }
     }
 }

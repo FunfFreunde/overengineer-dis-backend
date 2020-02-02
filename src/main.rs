@@ -1,21 +1,25 @@
-use actix_web::{web, App, HttpServer, Responder, HttpResponse, HttpRequest, Error, middleware};
+use crate::net::message::client::{ClientMessage, MessageType};
+use crate::net::session::{GameServer, GameSocket};
+use actix::{Actor, Addr};
+use actix_web::{middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder};
+use actix_web_actors::ws;
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
-use std::env;
-use uuid::Uuid;
-use crate::net::session::{GameServer, GameSocket};
-use crate::net::message::client::{ClientMessage, MessageType};
-use std::sync::Arc;
 use std::collections::HashMap;
-use actix_web_actors::ws;
-use actix::{Actor, Addr};
+use std::env;
 use std::ops::Deref;
+use std::sync::Arc;
+use uuid::Uuid;
 
 mod game;
 mod net;
 
 /// do websocket handshake and start `MyWebSocket` actor
-async fn ws_index(data: web::Data<Addr<GameServer>>, r: HttpRequest, stream: web::Payload) -> Result<HttpResponse, Error> {
+async fn ws_index(
+    data: web::Data<Addr<GameServer>>,
+    r: HttpRequest,
+    stream: web::Payload,
+) -> Result<HttpResponse, Error> {
     let uuid = Uuid::new_v4();
     let game_socket = GameSocket::new(uuid, data.into_inner());
 
@@ -24,7 +28,10 @@ async fn ws_index(data: web::Data<Addr<GameServer>>, r: HttpRequest, stream: web
 }
 
 async fn index() -> impl Responder {
-    web::Json(ClientMessage { player: Uuid::new_v4(), message_type: MessageType::DrawCard })
+    web::Json(ClientMessage {
+        player: Uuid::new_v4(),
+        message_type: MessageType::DrawCard,
+    })
 }
 
 #[actix_rt::main]
@@ -39,15 +46,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let game_server = GameServer::new();
     let data = game_server.start();
 
-    HttpServer::new(move || App::new()
-        .data(data.clone())
-        .wrap(middleware::Logger::default())
-        .route("/join", web::get().to(ws_index))
-        .route("/", web::get().to(index))
-    )
-        .bind(env::var("LISTEN_ADDRESS")?)?
-        .run()
-        .await?;
+    HttpServer::new(move || {
+        App::new()
+            .data(data.clone())
+            .wrap(middleware::Logger::default())
+            .route("/join", web::get().to(ws_index))
+            .route("/", web::get().to(index))
+    })
+    .bind(env::var("LISTEN_ADDRESS")?)?
+    .run()
+    .await?;
 
     Ok(())
 }
